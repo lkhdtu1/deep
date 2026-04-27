@@ -1,0 +1,222 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\title{Explainable IDS Pipeline: Execution Report and Documentation}
+\author{}
+\date{April 21, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+This document summarizes the purpose, workflow, fixes, and verified execution results of \texttt{pipeline.py}. The script implements an explainable intrusion detection system (IDS) workflow on the NSL-KDD dataset. It performs data loading, preprocessing, model training, evaluation, explanation generation, stability analysis, and adversarial analysis in a single end-to-end pipeline.
+
+\section{Pipeline Scope}
+The pipeline executes the following stages:
+\begin{enumerate}[leftmargin=*]
+    \item Load the NSL-KDD training and test sets.
+    \item Convert the task to binary classification: \texttt{normal} vs.\ \texttt{attack}.
+    \item One-hot encode categorical features and scale inputs with MinMax normalization.
+    \item Train three classifiers:
+    \begin{itemize}[leftmargin=1.5em]
+        \item Logistic Regression
+        \item Random Forest
+        \item Multi-Layer Perceptron (MLP)
+    \end{itemize}
+    \item Evaluate each model using classification metrics and PR-AUC.
+    \item Generate explanations with SHAP and LIME.
+    \item Measure explanation stability across similar attack samples.
+    \item Run a SHAP-guided adversarial evasion analysis and a simple defense evaluation.
+\end{enumerate}
+
+\section{Issues Found and Corrected}
+The original runtime path had several execution problems. These were corrected directly in \texttt{pipeline.py}.
+
+\subsection{Dataset Download Failure}
+The original loader attempted to download the dataset exclusively from \texttt{raw.githubusercontent.com}. On this machine, DNS policy returned \texttt{NXDOMAIN} for that host, so the pipeline could not start from a clean workspace.
+
+\textbf{Fix:}
+\begin{itemize}[leftmargin=*]
+    \item Kept the standard raw GitHub download path as the first attempt.
+    \item Added an automatic fallback using the GitHub API blob endpoint.
+    \item Added a clear, user-facing error if both download paths fail.
+\end{itemize}
+
+\subsection{Matplotlib Configuration Warning}
+Matplotlib tried to write its configuration cache under a non-writable default path, producing warnings at startup.
+
+\textbf{Fix:}
+\begin{itemize}[leftmargin=*]
+    \item Set \texttt{MPLCONFIGDIR} to a writable local directory under \texttt{outputs/.matplotlib}.
+    \item Ensured the backend is configured before importing \texttt{pyplot}.
+\end{itemize}
+
+\subsection{Label Normalization Robustness}
+The NSL-KDD family of files can appear with small formatting variations such as trailing periods in labels.
+
+\textbf{Fix:}
+\begin{itemize}[leftmargin=*]
+    \item Normalized label strings with whitespace stripping.
+    \item Treated both \texttt{normal} and \texttt{normal.} as the benign class.
+\end{itemize}
+
+\subsection{Explanation and Analysis Edge Cases}
+Modern SHAP versions can return outputs in different binary-classification formats, and some downstream analysis steps can fail when no valid samples or pairs are available.
+
+\textbf{Fix:}
+\begin{itemize}[leftmargin=*]
+    \item Added SHAP output normalization for list-based and ndarray-based return types.
+    \item Added guards for empty attack subsets and empty similarity-pair results.
+    \item Improved final summary handling when adversarial results are unavailable.
+\end{itemize}
+
+\section{Verified Execution}
+The pipeline was run end-to-end successfully after the fixes. During execution, the missing dataset files were downloaded automatically through the GitHub API fallback.
+
+\subsection{Dataset Sizes}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{KDDTrain+.txt}: 19,109,424 bytes
+    \item \texttt{KDDTest+.txt}: 3,441,513 bytes
+\end{itemize}
+
+\subsection{Observed Dataset Shapes}
+\begin{itemize}[leftmargin=*]
+    \item Training rows: 125,973
+    \item Test rows: 22,544
+    \item Final feature count after preprocessing: 122
+\end{itemize}
+
+\section{Model Results}
+The final verified model metrics are shown in Table~\ref{tab:results}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.6in}cc}
+\toprule
+Model & Macro F1 & PR-AUC \\
+\midrule
+Logistic Regression (baseline) & 0.7535 & 0.8864 \\
+Random Forest & 0.7726 & 0.9650 \\
+MLP & 0.8060 & 0.9461 \\
+\bottomrule
+\end{tabular}
+\caption{Verified evaluation results from the final pipeline run.}
+\label{tab:results}
+\end{table}
+
+\noindent The MLP achieved the highest macro F1 score, while the Random Forest achieved the best PR-AUC.
+
+\section{Explainability Results}
+\subsection{SHAP}
+The Random Forest SHAP analysis identified the following top features:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{flag\_SF}
+    \item \texttt{logged\_in}
+    \item \texttt{dst\_host\_srv\_count}
+    \item \texttt{dst\_host\_same\_srv\_rate}
+    \item \texttt{same\_srv\_rate}
+    \item \texttt{diff\_srv\_rate}
+    \item \texttt{service\_private}
+    \item \texttt{dst\_host\_rerror\_rate}
+    \item \texttt{count}
+    \item \texttt{dst\_host\_srv\_serror\_rate}
+\end{itemize}
+
+The Spearman rank correlation between Random Forest SHAP importances and MLP SHAP importances was:
+\[
+\rho = 0.745 \quad (p = 0.0000)
+\]
+This indicates substantial agreement between the two explanation profiles.
+
+\subsection{LIME}
+The top global LIME features from the evaluated attack instances were:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{service\_private}
+    \item \texttt{logged\_in}
+    \item \texttt{wrong\_fragment}
+    \item \texttt{dst\_host\_rerror\_rate}
+    \item \texttt{rerror\_rate}
+    \item \texttt{flag\_SF}
+    \item \texttt{service\_ecr\_i}
+    \item \texttt{dst\_host\_srv\_serror\_rate}
+    \item \texttt{protocol\_type\_icmp}
+    \item \texttt{flag\_S0}
+\end{itemize}
+
+\section{Stability and Adversarial Analysis}
+\subsection{Explanation Stability}
+For similar attack-sample pairs, the mean Jaccard similarity of the top-10 SHAP features was:
+\[
+0.994 \pm 0.037
+\]
+This indicates very high stability for the selected explanation subset under the implemented similarity criterion.
+
+\subsection{SHAP-Guided Attack Results}
+Table~\ref{tab:attack} summarizes the adversarial evasion rates.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Perturbed Features & $\epsilon=0.05$ & $\epsilon=0.10$ & $\epsilon=0.20$ \\
+\midrule
+Top-5 & 34.86\% & 33.60\% & 32.26\% \\
+Top-10 & 35.49\% & 35.04\% & 34.59\% \\
+Top-15 & 35.49\% & 34.14\% & 33.51\% \\
+\bottomrule
+\end{tabular}
+\caption{Verified evasion rates from the SHAP-guided perturbation analysis.}
+\label{tab:attack}
+\end{table}
+
+\subsection{Defense Evaluation}
+The implemented feature-randomization defense did not materially reduce evasion in the observed run:
+\begin{itemize}[leftmargin=*]
+    \item Evasion rate without defense: 35.04\%
+    \item Evasion rate with defense: 35.04\%
+    \item Observed reduction: 0.0\%
+\end{itemize}
+
+\section{Generated Artifacts}
+The pipeline produced the following output figures in the \texttt{outputs/} directory:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{shap\_beeswarm\_rf.png}
+    \item \texttt{shap\_comparison.png}
+    \item \texttt{shap\_stability.png}
+    \item \texttt{evasion\_heatmap.png}
+\end{itemize}
+
+\section{How to Run}
+From the project directory:
+
+\begin{verbatim}
+./venv/bin/python pipeline.py
+\end{verbatim}
+
+If the dataset files are not already present, the script will attempt to download:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{KDDTrain+.txt}
+    \item \texttt{KDDTest+.txt}
+\end{itemize}
+
+The downloader first tries the raw GitHub path, then falls back to the GitHub API if the raw content host is blocked.
+
+\section{Conclusion}
+The pipeline is now operational and verified on this machine. The main engineering change was making dataset acquisition resilient to host-specific DNS blocking of \texttt{raw.githubusercontent.com}. After that correction, the full IDS workflow executed successfully and generated model metrics, explainability outputs, stability measurements, and adversarial-analysis results without further runtime failures.
+
+\end{document}

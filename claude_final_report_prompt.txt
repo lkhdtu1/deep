@@ -1,0 +1,168 @@
+Write a polished final academic report for Project 5 of the course assignment in `doc.pdf`.
+
+Important constraints:
+
+1. Base the report only on the verified project facts below.
+2. Do not invent deliverables that are not present.
+3. Do not leave placeholders like `[run output]`.
+4. Keep the tone formal, technical, and defensible.
+5. Emphasize analysis and justification more than hype.
+6. Make the report suitable for conversion to a PDF of at most 10 pages.
+7. Use clear section headings.
+8. If you mention limitations or future work, make them realistic and tied to the results.
+
+Assignment facts from `doc.pdf`:
+
+- General course requirements:
+  - justify design choices
+  - include a baseline model
+  - at least 3 experimental variations
+  - use appropriate metrics such as precision, recall, F1, PR-AUC
+  - fixed random seeds
+  - document preprocessing
+  - submit report, code with README, and reproducibility instructions
+- Project 5:
+  - title: Explainable IDS
+  - core idea: make IDS decisions interpretable and assess explanation reliability
+  - dataset: NSL-KDD
+  - key challenges:
+    - interpreting black-box models
+    - evaluating explanation stability
+    - assessing adversarial risks
+  - tasks:
+    - train model
+    - apply explainability
+    - evaluate stability
+    - analyze security implications
+  - deliverables:
+    - explanation analysis
+    - security report
+  - expected output:
+    - explanation and security analysis
+
+Project implementation facts:
+
+- Main code file: `pipeline.py`
+- Dataset files:
+  - `KDDTrain+.txt`
+  - `KDDTest+.txt`
+- Output figures:
+  - `outputs/shap_beeswarm_rf.png`
+  - `outputs/shap_comparison.png`
+  - `outputs/shap_stability.png`
+  - `outputs/evasion_heatmap.png`
+
+Preprocessing facts:
+
+- Drop the `difficulty` column.
+- Convert the task to binary classification:
+  - `normal` -> 0
+  - all attack labels -> 1
+- One-hot encode `protocol_type`, `service`, and `flag`.
+- Fit MinMax scaling on training data only.
+- Final feature count: 122.
+- Train rows: 125,973.
+- Test rows: 22,544.
+- Random seed: 42.
+
+Models and experimental framing:
+
+- Baseline: Logistic Regression.
+- Variation 1: Random Forest with TreeSHAP.
+- Variation 2: MLP with KernelSHAP.
+- Additional explanation method: LIME on attack samples.
+- Security analysis: SHAP-guided evasion attack and feature-randomization defense.
+
+Verified measured results from the real pipeline run:
+
+- Logistic Regression:
+  - macro precision 0.78
+  - macro recall 0.77
+  - macro F1 0.7535
+  - PR-AUC 0.8864
+- Random Forest:
+  - macro precision 0.81
+  - macro recall 0.80
+  - macro F1 0.7726
+  - PR-AUC 0.9650
+- MLP:
+  - macro precision 0.82
+  - macro recall 0.82
+  - macro F1 0.8060
+  - PR-AUC 0.9461
+
+Explainability results:
+
+- Top 10 Random Forest SHAP features:
+  1. `flag_SF`
+  2. `logged_in`
+  3. `dst_host_srv_count`
+  4. `dst_host_same_srv_rate`
+  5. `same_srv_rate`
+  6. `diff_srv_rate`
+  7. `service_private`
+  8. `dst_host_rerror_rate`
+  9. `count`
+  10. `dst_host_srv_serror_rate`
+- Top 10 LIME features:
+  1. `service_private`
+  2. `logged_in`
+  3. `wrong_fragment`
+  4. `dst_host_rerror_rate`
+  5. `rerror_rate`
+  6. `flag_SF`
+  7. `service_ecr_i`
+  8. `dst_host_srv_serror_rate`
+  9. `protocol_type_icmp`
+  10. `flag_S0`
+- Spearman correlation between RF SHAP and MLP SHAP global importances: 0.745.
+
+Stability result:
+
+- SHAP top-10 feature Jaccard stability across similar attack pairs: 0.994 ± 0.037.
+
+Adversarial/security results:
+
+- Evasion rates under SHAP-guided perturbation:
+  - top-5, eps 0.05 -> 34.86%
+  - top-5, eps 0.10 -> 33.60%
+  - top-5, eps 0.20 -> 32.26%
+  - top-10, eps 0.05 -> 35.49%
+  - top-10, eps 0.10 -> 35.04%
+  - top-10, eps 0.20 -> 34.59%
+  - top-15, eps 0.05 -> 35.49%
+  - top-15, eps 0.10 -> 34.14%
+  - top-15, eps 0.20 -> 33.51%
+- Defense result:
+  - evasion without defense: 35.04%
+  - evasion with feature-randomization defense: 35.04%
+  - improvement: 0.0%
+
+Interpretation guidance you must follow:
+
+- Do not describe the results as poor without analysis.
+- Explain that NSL-KDD is a challenging benchmark and that macro F1 in the 0.75 to 0.81 range can still be defensible, especially since Project 5 is centered on explanation quality and security implications, not only raw classification score.
+- Explain the distinction between the best macro F1 model (MLP) and the best PR-AUC model (Random Forest).
+- Treat the very high stability result as a double-edged finding:
+  - good for analyst trust
+  - potentially useful to an attacker because stable explanations reveal a consistent manipulation surface
+- Treat the failed defense as an important negative result, not something to hide.
+- State clearly that the attack is feature-space based and does not directly prove packet-level realizability.
+
+Write the report with this structure:
+
+1. Title
+2. Abstract
+3. Introduction
+4. Assignment Requirements and Experimental Design
+5. Dataset and Preprocessing
+6. Models and Explainability Methods
+7. Experimental Results
+8. Stability and Reliability of Explanations
+9. Security Implications and Adversarial Analysis
+10. Limitations
+11. Conclusion
+
+In the results section, include at least one compact performance table and one compact security-results table in plain text or Markdown.
+
+End with a short paragraph that explicitly states the main scientific takeaway of the project.
