@@ -51,6 +51,7 @@ Project implementation facts:
   - `outputs/shap_comparison.png`
   - `outputs/shap_stability.png`
   - `outputs/evasion_heatmap.png`
+  - `outputs/evasion_heatmap_local.png`
 
 Preprocessing facts:
 
@@ -71,81 +72,121 @@ Models and experimental framing:
 - Variation 1: Random Forest with TreeSHAP.
 - Variation 2: MLP with KernelSHAP.
 - Additional explanation method: LIME on attack samples.
-- Security analysis: SHAP-guided evasion attack and feature-randomization defense.
+- Security analysis: global and local SHAP-guided evasion attack plus feature-randomization defense.
 
 Verified measured results from the real pipeline run:
 
 - Logistic Regression:
-  - macro precision 0.78
-  - macro recall 0.77
-  - macro F1 0.7535
-  - PR-AUC 0.8864
+  - macro precision 0.79
+  - macro recall 0.78
+  - macro F1 0.7601
+  - PR-AUC 0.8806
+  - balanced accuracy 0.7798
+  - tuned threshold 0.40
 - Random Forest:
   - macro precision 0.81
-  - macro recall 0.80
-  - macro F1 0.7726
-  - PR-AUC 0.9650
+  - macro recall 0.82
+  - macro F1 0.8007
+  - PR-AUC 0.9677
+  - balanced accuracy 0.8156
+  - tuned threshold 0.32
 - MLP:
   - macro precision 0.82
   - macro recall 0.82
-  - macro F1 0.8060
-  - PR-AUC 0.9461
+  - macro F1 0.8047
+  - PR-AUC 0.9246
+  - balanced accuracy 0.8194
+  - tuned threshold 0.50
+
+Attack-family recall breakdown:
+
+- Logistic Regression:
+  - DoS 0.824
+  - Probe 0.815
+  - R2L 0.026
+  - U2R 0.119
+- Random Forest:
+  - DoS 0.866
+  - Probe 0.867
+  - R2L 0.177
+  - U2R 0.269
+- MLP:
+  - DoS 0.861
+  - Probe 0.910
+  - R2L 0.170
+  - U2R 0.448
 
 Explainability results:
 
 - Top 10 Random Forest SHAP features:
   1. `flag_SF`
-  2. `logged_in`
-  3. `dst_host_srv_count`
-  4. `dst_host_same_srv_rate`
-  5. `same_srv_rate`
-  6. `diff_srv_rate`
-  7. `service_private`
-  8. `dst_host_rerror_rate`
-  9. `count`
-  10. `dst_host_srv_serror_rate`
+  2. `dst_host_srv_count`
+  3. `logged_in`
+  4. `same_srv_rate`
+  5. `dst_host_same_srv_rate`
+  6. `service_private`
+  7. `dst_host_rerror_rate`
+  8. `count`
+  9. `dst_host_diff_srv_rate`
+  10. `diff_srv_rate`
 - Top 10 LIME features:
   1. `service_private`
-  2. `logged_in`
-  3. `wrong_fragment`
+  2. `wrong_fragment`
+  3. `logged_in`
   4. `dst_host_rerror_rate`
-  5. `rerror_rate`
-  6. `flag_SF`
-  7. `service_ecr_i`
-  8. `dst_host_srv_serror_rate`
-  9. `protocol_type_icmp`
-  10. `flag_S0`
-- Spearman correlation between RF SHAP and MLP SHAP global importances: 0.745.
+  5. `service_ecr_i`
+  6. `rerror_rate`
+  7. `flag_SF`
+  8. `protocol_type_icmp`
+  9. `count`
+  10. `serror_rate`
+- Spearman correlation between RF SHAP and MLP SHAP global importances: 0.729.
+- Mean LIME local fidelity: 0.694.
 
-Stability result:
+Stability results:
 
-- SHAP top-10 feature Jaccard stability across similar attack pairs: 0.994 ± 0.037.
+- Local SHAP top-10 Jaccard stability across nearest-neighbor attack pairs: 0.909 ± 0.141.
+- Local SHAP rank correlation stability: 0.991.
+- Bootstrap SHAP top-10 Jaccard stability: 0.927.
+- Bootstrap SHAP rank correlation stability: 0.992.
 
 Adversarial/security results:
 
-- Evasion rates under SHAP-guided perturbation:
-  - top-5, eps 0.05 -> 34.86%
-  - top-5, eps 0.10 -> 33.60%
-  - top-5, eps 0.20 -> 32.26%
-  - top-10, eps 0.05 -> 35.49%
-  - top-10, eps 0.10 -> 35.04%
-  - top-10, eps 0.20 -> 34.59%
-  - top-15, eps 0.05 -> 35.49%
-  - top-15, eps 0.10 -> 34.14%
-  - top-15, eps 0.20 -> 33.51%
+- Global SHAP-guided evasion:
+  - top-5, eps 0.05 -> 34.62%
+  - top-5, eps 0.10 -> 34.05%
+  - top-5, eps 0.20 -> 33.90%
+  - top-10, eps 0.05 -> 35.19%
+  - top-10, eps 0.10 -> 35.19%
+  - top-10, eps 0.20 -> 36.47%
+  - top-15, eps 0.05 -> 36.11%
+  - top-15, eps 0.10 -> 36.11%
+  - top-15, eps 0.20 -> 36.82%
+- Local instance-specific SHAP-guided evasion:
+  - top-5, eps 0.05 -> 38.46%
+  - top-5, eps 0.10 -> 38.18%
+  - top-5, eps 0.20 -> 37.96%
+  - top-10, eps 0.05 -> 36.68%
+  - top-10, eps 0.10 -> 34.26%
+  - top-10, eps 0.20 -> 34.54%
+  - top-15, eps 0.05 -> 35.47%
+  - top-15, eps 0.10 -> 31.13%
+  - top-15, eps 0.20 -> 30.63%
 - Defense result:
-  - evasion without defense: 35.04%
-  - evasion with feature-randomization defense: 35.04%
+  - evasion without defense: 34.26%
+  - evasion with feature-randomization defense: 34.26%
   - improvement: 0.0%
 
 Interpretation guidance you must follow:
 
 - Do not describe the results as poor without analysis.
-- Explain that NSL-KDD is a challenging benchmark and that macro F1 in the 0.75 to 0.81 range can still be defensible, especially since Project 5 is centered on explanation quality and security implications, not only raw classification score.
-- Explain the distinction between the best macro F1 model (MLP) and the best PR-AUC model (Random Forest).
-- Treat the very high stability result as a double-edged finding:
+- Explain that NSL-KDD is a challenging benchmark and that macro F1 around 0.76 to 0.80 can still be defensible, especially since Project 5 is centered on explanation quality and security implications, not only raw classification score.
+- Explain that the Random Forest is now the strongest overall model because it combines near-best macro F1 with clearly best PR-AUC and the best explainability workflow.
+- Treat the strong stability result as a double-edged finding:
   - good for analyst trust
   - potentially useful to an attacker because stable explanations reveal a consistent manipulation surface
+- Explicitly discuss the severe weakness on R2L and U2R attack families.
+- Explain why local instance-specific SHAP attacks are a stronger security argument than a single global attack ranking.
 - Treat the failed defense as an important negative result, not something to hide.
 - State clearly that the attack is feature-space based and does not directly prove packet-level realizability.
 

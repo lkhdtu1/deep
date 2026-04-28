@@ -1,0 +1,220 @@
+============================================================
+Project 5: Explainable IDS — Full Pipeline
+============================================================
+[DATA] Train: 125973 rows | Test: 22544 rows
+[DATA] Train label dist:
+label
+normal         67343
+neptune        41214
+satan           3633
+ipsweep         3599
+portsweep       2931
+smurf           2646
+nmap            1493
+back             956
+teardrop         892
+warezclient      890
+Name: count, dtype: int64
+
+[PREP] Features: 122 | Train: (125973, 122) | Test: (22544, 122)
+
+[TRAIN] Validation split, hyperparameter search, and threshold tuning...
+
+  → Logistic Regression (baseline)
+     [1/4] params={'C': 0.5, 'class_weight': None} val_macro_F1=0.9727 val_PR-AUC=0.9960 thr=0.37
+     [2/4] params={'C': 1.0, 'class_weight': None} val_macro_F1=0.9725 val_PR-AUC=0.9962 thr=0.37
+     [3/4] params={'C': 1.0, 'class_weight': 'balanced'} val_macro_F1=0.9726 val_PR-AUC=0.9962 thr=0.40
+     [4/4] params={'C': 2.0, 'class_weight': 'balanced'} val_macro_F1=0.9734 val_PR-AUC=0.9962 thr=0.40
+     selected params={'C': 2.0, 'class_weight': 'balanced'} | threshold=0.40
+
+  → Random Forest
+     [1/3] params={'n_estimators': 150, 'max_depth': 15, 'min_samples_leaf': 1, 'class_weight': None} val_macro_F1=0.9979 val_PR-AUC=1.0000 thr=0.35
+     [2/3] params={'n_estimators': 200, 'max_depth': 20, 'min_samples_leaf': 1, 'class_weight': None} val_macro_F1=0.9983 val_PR-AUC=1.0000 thr=0.32
+     [3/3] params={'n_estimators': 200, 'max_depth': 20, 'min_samples_leaf': 2, 'class_weight': 'balanced_subsample'} val_macro_F1=0.9978 val_PR-AUC=1.0000 thr=0.42
+     selected params={'n_estimators': 200, 'max_depth': 20, 'min_samples_leaf': 1, 'class_weight': None} | threshold=0.32
+
+  → MLP
+     using stratified subset for MLP: tune=40000 train=50000
+     [1/2] params={'hidden_layer_sizes': (64, 32), 'alpha': 0.0001, 'learning_rate_init': 0.001} val_macro_F1=0.9950 val_PR-AUC=0.9996 thr=0.50
+     [2/2] params={'hidden_layer_sizes': (128, 64), 'alpha': 0.001, 'learning_rate_init': 0.001} val_macro_F1=0.9943 val_PR-AUC=0.9996 thr=0.50
+     selected params={'hidden_layer_sizes': (64, 32), 'alpha': 0.0001, 'learning_rate_init': 0.001} | threshold=0.50
+
+[EVAL] Classification Results
+============================================================
+
+Logistic Regression (baseline)
+  Tuned threshold: 0.40
+              precision    recall  f1-score   support
+
+      normal       0.66      0.92      0.77      9711
+      attack       0.91      0.64      0.75     12833
+
+    accuracy                           0.76     22544
+   macro avg       0.79      0.78      0.76     22544
+weighted avg       0.80      0.76      0.76     22544
+
+  PR-AUC: 0.8806
+  Balanced Accuracy: 0.7798
+  Attack-family recall breakdown:
+    DoS   support=7458  recall=0.824
+    Probe support=2421  recall=0.815
+    R2L   support=2887  recall=0.026
+    U2R   support=67    recall=0.119
+
+Random Forest
+  Tuned threshold: 0.32
+              precision    recall  f1-score   support
+
+      normal       0.71      0.92      0.80      9711
+      attack       0.92      0.71      0.80     12833
+
+    accuracy                           0.80     22544
+   macro avg       0.81      0.82      0.80     22544
+weighted avg       0.83      0.80      0.80     22544
+
+  PR-AUC: 0.9677
+  Balanced Accuracy: 0.8156
+  Attack-family recall breakdown:
+    DoS   support=7458  recall=0.866
+    Probe support=2421  recall=0.867
+    R2L   support=2887  recall=0.177
+    U2R   support=67    recall=0.269
+
+MLP
+  Tuned threshold: 0.50
+              precision    recall  f1-score   support
+
+      normal       0.71      0.93      0.80      9711
+      attack       0.93      0.71      0.81     12833
+
+    accuracy                           0.80     22544
+   macro avg       0.82      0.82      0.80     22544
+weighted avg       0.83      0.80      0.80     22544
+
+  PR-AUC: 0.9246
+  Balanced Accuracy: 0.8194
+  Attack-family recall breakdown:
+    DoS   support=7458  recall=0.861
+    Probe support=2421  recall=0.910
+    R2L   support=2887  recall=0.170
+    U2R   support=67    recall=0.448
+
+[SHAP] Computing SHAP values...
+  → TreeSHAP (RF)... done
+
+  Top 10 features (RF SHAP):
+     1. flag_SF                             0.0477
+     2. dst_host_srv_count                  0.0412
+     3. logged_in                           0.0407
+     4. same_srv_rate                       0.0361
+     5. dst_host_same_srv_rate              0.0352
+     6. service_private                     0.0289
+     7. dst_host_rerror_rate                0.0279
+     8. count                               0.0271
+     9. dst_host_diff_srv_rate              0.0258
+    10. diff_srv_rate                       0.0255
+
+  → KernelSHAP (MLP, subset 100 bg + 120 samples)... done
+
+  SHAP Spearman rank correlation (RF vs MLP): 0.729 (p=0.0000)
+
+  → Saving SHAP beeswarm plot... saved to outputs/shap_beeswarm_rf.png
+  → Saved outputs/shap_comparison.png
+
+[LIME] Computing LIME explanations for 80 instances...
+
+  Top 10 features (LIME):
+     1. service_private                     0.1399
+     2. wrong_fragment                      0.0856
+     3. logged_in                           0.0842
+     4. dst_host_rerror_rate                0.0671
+     5. service_ecr_i                       0.0644
+     6. rerror_rate                         0.0608
+     7. flag_SF                             0.0599
+     8. protocol_type_icmp                  0.0504
+     9. count                               0.0467
+    10. serror_rate                         0.0466
+  Mean local fidelity (R^2-style surrogate score): 0.694
+  Explained attack samples: total=80 correct=58 incorrect=22
+
+[STABILITY] Explanation stability analysis...
+  Nearest-neighbor attack pairs evaluated: 184
+  SHAP Jaccard stability (top-10): 0.909 ± 0.141
+  SHAP rank-correlation stability: 0.991
+  Bootstrap top-10 Jaccard stability: 0.927
+  Bootstrap rank-correlation stability: 0.992
+  → Saved outputs/shap_stability.png
+
+[ATTACK] SHAP-guided adversarial evasion attack...
+  global top-5, ε=0.05: Evasion Rate = 34.62%
+  global top-5, ε=0.1: Evasion Rate = 34.05%
+  global top-5, ε=0.2: Evasion Rate = 33.90%
+  global top-10, ε=0.05: Evasion Rate = 35.19%
+  global top-10, ε=0.1: Evasion Rate = 35.19%
+  global top-10, ε=0.2: Evasion Rate = 36.47%
+  global top-15, ε=0.05: Evasion Rate = 36.11%
+  global top-15, ε=0.1: Evasion Rate = 36.11%
+  global top-15, ε=0.2: Evasion Rate = 36.82%
+   local top-5, ε=0.05: Evasion Rate = 38.46%
+   local top-5, ε=0.1: Evasion Rate = 38.18%
+   local top-5, ε=0.2: Evasion Rate = 37.96%
+   local top-10, ε=0.05: Evasion Rate = 36.68%
+   local top-10, ε=0.1: Evasion Rate = 34.26%
+   local top-10, ε=0.2: Evasion Rate = 34.54%
+   local top-15, ε=0.05: Evasion Rate = 35.47%
+   local top-15, ε=0.1: Evasion Rate = 31.13%
+   local top-15, ε=0.2: Evasion Rate = 30.63%
+  → Saved outputs/evasion_heatmap.png
+  → Saved outputs/evasion_heatmap_local.png
+
+[DEFENSE] Evaluating feature randomization defense...
+  Evasion rate WITHOUT defense: 34.26%
+  Evasion rate WITH defense:    34.26%
+  Defense effectiveness: 0.0% reduction in evasion
+
+============================================================
+FINAL SUMMARY — Project 5: Explainable IDS
+============================================================
+
+── Model Performance ──
+  Logistic Regression (baseline)           F1=0.7601  PR-AUC=0.8806  Threshold=0.40
+  Random Forest                            F1=0.8007  PR-AUC=0.9677  Threshold=0.32
+  MLP                                      F1=0.8047  PR-AUC=0.9246  Threshold=0.50
+
+── Explanation Stability ──
+  Local SHAP Jaccard (top-10, nearest-neighbor attacks): 0.909
+  Local SHAP rank correlation: 0.991
+  Bootstrap SHAP Jaccard: 0.927
+  Bootstrap SHAP rank correlation: 0.992
+
+── Explainability Quality ──
+  RF/MLP SHAP Spearman alignment: 0.729
+  LIME mean local fidelity: 0.694
+
+── Adversarial Attack ──
+  global_top10_eps0.05     : Evasion = 35.19%
+  global_top10_eps0.1      : Evasion = 35.19%
+  global_top10_eps0.2      : Evasion = 36.47%
+  global_top15_eps0.05     : Evasion = 36.11%
+  global_top15_eps0.1      : Evasion = 36.11%
+  global_top15_eps0.2      : Evasion = 36.82%
+  global_top5_eps0.05      : Evasion = 34.62%
+  global_top5_eps0.1       : Evasion = 34.05%
+  global_top5_eps0.2       : Evasion = 33.90%
+  local_top10_eps0.05      : Evasion = 36.68%
+  local_top10_eps0.1       : Evasion = 34.26%
+  local_top10_eps0.2       : Evasion = 34.54%
+  local_top15_eps0.05      : Evasion = 35.47%
+  local_top15_eps0.1       : Evasion = 31.13%
+  local_top15_eps0.2       : Evasion = 30.63%
+  local_top5_eps0.05       : Evasion = 38.46%
+  local_top5_eps0.1        : Evasion = 38.18%
+  local_top5_eps0.2        : Evasion = 37.96%
+
+── Defense ──
+  Without defense: 34.26%
+  With defense:    34.26%
+  Reduction:       0.0%
+
+Outputs saved to ./outputs/
+============================================================

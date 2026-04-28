@@ -75,21 +75,25 @@ The code sets `SEED = 42` and uses it in:
 
 ## Expected Core Metrics
 
-The following values were observed on the verified run and should be close if the environment is reproduced correctly:
+The following values were observed on the improved verified run and should be close if the environment is reproduced correctly:
 
 - Logistic Regression:
-  - macro F1 `0.7535`
-  - PR-AUC `0.8864`
+  - macro F1 `0.7601`
+  - PR-AUC `0.8806`
+  - balanced accuracy `0.7798`
 - Random Forest:
-  - macro F1 `0.7726`
-  - PR-AUC `0.9650`
+  - macro F1 `0.8007`
+  - PR-AUC `0.9677`
+  - balanced accuracy `0.8156`
 - MLP:
-  - macro F1 `0.8060`
-  - PR-AUC `0.9461`
+  - macro F1 `0.8047`
+  - PR-AUC `0.9246`
+  - balanced accuracy `0.8194`
 - SHAP stability:
-  - Jaccard `0.994 ± 0.037`
+  - local Jaccard `0.909 ± 0.141`
+  - bootstrap Jaccard `0.927`
 - best evasion rate:
-  - `35.49%`
+  - `38.46%`
 
 ## Expected Output Files
 
@@ -99,9 +103,11 @@ Successful execution should produce:
 - [`outputs/shap_comparison.png`](/home/kali/deep/outputs/shap_comparison.png)
 - [`outputs/shap_stability.png`](/home/kali/deep/outputs/shap_stability.png)
 - [`outputs/evasion_heatmap.png`](/home/kali/deep/outputs/evasion_heatmap.png)
+- [`outputs/evasion_heatmap_local.png`](/home/kali/deep/outputs/evasion_heatmap_local.png)
 
 ## Notes
 
 - The pipeline is CPU-friendly and matches the course requirement for lightweight models.
+- The MLP uses a stratified subset during tuning and final fitting to keep runtime practical under course compute limits.
 - KernelSHAP is computed on a reduced subset for runtime reasons.
 - Small numerical variation is possible if package versions differ.

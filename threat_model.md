@@ -47,16 +47,21 @@ This is stronger than many real deployments, but it is appropriate because the p
 
 Does explanation access help an attacker evade detection?
 
-In this project, the answer is yes. SHAP highlights the features that most affect the Random Forest's attack decision. Perturbing those features yields evasion around `32%` to `35.5%` across tested settings.
+In this project, the answer is yes. SHAP highlights the features that most affect the Random Forest's attack decision. The global SHAP attack yields evasion around `34%` to `37%`, while the stronger local instance-specific SHAP attack reaches `38.46%`.
 
-## Interpretation of the High Stability Result
+## Interpretation of the Stability Result
 
-The stability score is very high: `0.994 ± 0.037`.
+The explanation stability results remain strong:
+
+- local top-10 Jaccard `0.909 ± 0.141`
+- local rank correlation `0.991`
+- bootstrap top-10 Jaccard `0.927`
+- bootstrap rank correlation `0.992`
 
 That does not mean the system is safe. It means:
 
-- similar attack samples receive very similar explanation feature sets
-- the explanation method is internally consistent under the chosen metric
+- similar attack samples receive highly consistent explanation patterns
+- the explanation method is internally consistent under the chosen metrics
 
 But that same consistency also helps the attacker:
 
@@ -75,7 +80,7 @@ The tested feature-randomization defense produced `0.0%` improvement.
 This is an important negative result, not an embarrassment. It shows:
 
 - weak obscuration of low-importance features is insufficient
-- the attack relies on strong, global decision drivers
+- the attack relies on strong decision drivers
 - cosmetic explanation hardening is not the same as robust model defense
 
 ## Practical Security Conclusion
@@ -90,7 +95,7 @@ The right security conclusion is not “do not use explainability.” It is:
 ## Limits of This Threat Model
 
 - Feature-space perturbations are easier than real traffic manipulation.
-- The study is binary, so attack-family-specific behavior is hidden.
+- The study is binary, so attack-family-specific behavior is hidden in the main classifier setup.
 - The defense space is minimal and not exhaustive.
 - NSL-KDD is old, so direct operational generalization is limited.
 
