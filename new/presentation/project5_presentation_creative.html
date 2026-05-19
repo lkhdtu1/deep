@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project 5 - Creative Oral Defense Deck</title>
+  <style>
+    :root {
+      --navy: #07111f;
+      --navy-2: #0e1b2e;
+      --ink: #111827;
+      --muted: #5f6b7a;
+      --paper: #f8fafc;
+      --panel: #ffffff;
+      --teal: #0f766e;
+      --teal-2: #14b8a6;
+      --gold: #d97706;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --line: #d6dee8;
+      --green-soft: #e9fbf5;
+      --blue-soft: #eef5ff;
+      --gold-soft: #fff7e8;
+      --red-soft: #fff1f2;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #020617;
+      color: var(--ink);
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+
+    .slide {
+      display: none;
+      width: min(100vw, 177.777vh);
+      height: min(100vh, 56.25vw);
+      aspect-ratio: 16 / 9;
+      background: var(--paper);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,.42);
+    }
+
+    .slide.active {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+    }
+
+    .rail {
+      background: var(--navy);
+      color: #e5e7eb;
+      padding: 26px 17px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .rail-title {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      letter-spacing: .11em;
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #a7f3d0;
+      white-space: nowrap;
+    }
+
+    .num {
+      width: 42px;
+      height: 42px;
+      border: 2px solid #2dd4bf;
+      color: #f8fafc;
+      display: grid;
+      place-items: center;
+      font-weight: 850;
+      border-radius: 50%;
+      font-size: 15px;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: 72px 1fr 42px;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 40px 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .kicker {
+      color: var(--teal);
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .context {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .content {
+      padding: 24px 40px 18px;
+      display: grid;
+      gap: 18px;
+      min-height: 0;
+      align-content: stretch;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 40px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 52px;
+      line-height: 1.02;
+      letter-spacing: 0;
+      color: #08111f;
+      max-width: 1010px;
+    }
+    h2 {
+      font-size: 38px;
+      line-height: 1.08;
+      color: #08111f;
+      letter-spacing: 0;
+    }
+    h3 {
+      font-size: 22px;
+      line-height: 1.14;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+    p, li {
+      font-size: 21px;
+      line-height: 1.25;
+      color: #1f2937;
+    }
+    ul { margin: 0; padding-left: 22px; }
+    li { margin: 8px 0; }
+
+    .lead {
+      font-size: 26px;
+      line-height: 1.25;
+      color: #4b5563;
+      max-width: 920px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; min-height: 0; }
+    .grid-2.left { grid-template-columns: 1.2fr .8fr; }
+    .grid-2.right { grid-template-columns: .82fr 1.18fr; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 19px;
+      min-height: 0;
+      box-shadow: 0 10px 24px rgba(15,23,42,.055);
+    }
+
+    .card.dark {
+      background: var(--navy-2);
+      border-color: #1e3a5f;
+    }
+    .card.dark h3, .card.dark p, .card.dark li { color: #e5e7eb; }
+    .card.dark .muted { color: #b9c5d6; }
+
+    .fill {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .metric {
+      font-size: 45px;
+      line-height: .96;
+      color: var(--teal);
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+    .metric.blue { color: var(--blue); }
+    .metric.gold { color: var(--gold); }
+    .metric.red { color: var(--red); }
+    .metric.small { font-size: 34px; }
+    .metric-label {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.18;
+      font-weight: 780;
+    }
+
+    .callout {
+      border-left: 7px solid var(--teal);
+      background: var(--green-soft);
+      border-radius: 9px;
+      padding: 16px 18px;
+    }
+    .callout.blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout.gold { border-left-color: var(--gold); background: var(--gold-soft); }
+    .callout.red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout p { font-size: 22px; }
+    .callout strong { color: #0f513f; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+      table-layout: fixed;
+    }
+    th {
+      background: #10213a;
+      color: #fff;
+      padding: 10px 11px;
+      font-size: 16px;
+      text-align: left;
+    }
+    td {
+      padding: 10px 11px;
+      font-size: 16px;
+      border-top: 1px solid #e2e8f0;
+      color: #111827;
+      vertical-align: middle;
+    }
+    tr.selected td { background: #dff8ed; font-weight: 850; }
+    .mini-table th, .mini-table td { font-size: 15px; padding: 8px 9px; }
+
+    .image-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 0;
+      box-shadow: 0 10px 24px rgba(15,23,42,.055);
+    }
+    .image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      min-height: 0;
+    }
+    .caption {
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 750;
+      margin-top: 6px;
+    }
+
+    .hero {
+      background:
+        linear-gradient(90deg, rgba(7,17,31,.96), rgba(7,17,31,.88)),
+        url("../../outputs_cuda/adv_tree_transfer_pgd_defense.png");
+      background-size: cover;
+      background-position: center;
+    }
+    .hero .main { background: transparent; }
+    .hero header, .hero footer {
+      background: rgba(7,17,31,.82);
+      border-color: rgba(148,163,184,.26);
+    }
+    .hero h1, .hero .lead { color: #f8fafc; }
+    .hero .context { color: #cbd5e1; }
+
+    .step {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 15px;
+      border-top: 7px solid var(--teal);
+      min-height: 170px;
+    }
+    .step b {
+      display: block;
+      color: var(--teal);
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .step p { font-size: 18px; }
+
+    .tag {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #075985;
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-weight: 850;
+      font-size: 15px;
+      margin: 2px 4px 2px 0;
+    }
+
+    .statement {
+      font-size: 27px;
+      line-height: 1.22;
+      font-weight: 740;
+      color: #0f172a;
+    }
+
+    .notes {
+      display: none;
+      position: fixed;
+      left: 28px;
+      right: 28px;
+      bottom: 70px;
+      max-height: 30vh;
+      overflow: auto;
+      z-index: 5;
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 16px 45px rgba(0,0,0,.24);
+      padding: 15px 18px;
+      font-size: 17px;
+      line-height: 1.4;
+      color: #111827;
+    }
+    body.show-notes .notes { display: block; }
+
+    .controls {
+      position: fixed;
+      right: 18px;
+      bottom: 15px;
+      z-index: 6;
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      border: 1px solid #94a3b8;
+      background: #fff;
+      color: #0f172a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 760;
+    }
+    @media print {
+      body { height: auto; overflow: visible; background: #fff; }
+      .deck { display: block; height: auto; }
+      .slide { display: grid !important; width: 100vw; height: 56.25vw; page-break-after: always; box-shadow: none; }
+      .controls, .notes { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+<main class="deck">
+
+  <section class="slide active hero" data-notes="Open by saying this is not only an accuracy project. It is an IDS decision-making project: train, explain, test stability, and analyze adversarial risk as requested in doc.pdf.">
+    <aside class="rail"><div class="rail-title">Explainable IDS</div><div class="num">01</div></aside>
+    <div class="main">
+      <header><div class="kicker">Project 5 Oral Defense</div><div class="context">NSL-KDD | 478 features | CUDA</div></header>
+      <div class="content" style="grid-template-rows:auto auto 1fr;">
+        <div>
+          <h1>Explainable Intrusion Detection Under Adversarial Pressure</h1>
+          <p class="lead" style="margin-top:16px;">A final IDS pipeline that explains decisions, measures explanation reliability, and tests whether explanations can be weaponized.</p>
+        </div>
+        <div class="grid-4">
+          <div class="card"><div class="metric">0.9063</div><div class="metric-label">Final binary F1</div></div>
+          <div class="card"><div class="metric">0.9626</div><div class="metric-label">PR-AUC</div></div>
+          <div class="card"><div class="metric">0.9064</div><div class="metric-label">Balanced accuracy</div></div>
+          <div class="card"><div class="metric blue">0.00%</div><div class="metric-label">Transfer-PGD evasion at eps >= 0.06</div></div>
+        </div>
+        <div class="callout"><p><strong>Final selected model:</strong> Adv+ExtraTrees Ensemble IDS. It is selected because it gives the best balance between IDS performance, explainability, rare-family recall, and adversarial transfer robustness.</p></div>
+      </div>
+      <footer><span>ICCN - INE2 | Deep Learning in Cybersecurity</span><span>1 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="This slide shows direct compliance with doc.pdf. It helps the jury see that each assignment item is handled, and that your presentation will follow the requested structure.">
+    <aside class="rail"><div class="rail-title">Requirements</div><div class="num">02</div></aside>
+    <div class="main">
+      <header><div class="kicker">doc.pdf Alignment</div><div class="context">What the project asks for</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr;">
+        <h2>What Was Required, And Where It Appears</h2>
+        <div class="grid-2 left">
+          <table>
+            <thead><tr><th>Requirement</th><th>Implemented evidence</th></tr></thead>
+            <tbody>
+              <tr><td>Train IDS model</td><td>LR, RF, Torch MLP, binary models, ensembles</td></tr>
+              <tr><td>Apply explainability</td><td>TreeSHAP, IG, SmoothIG, final ensemble explanation</td></tr>
+              <tr><td>Evaluate stability</td><td>Local + bootstrap Jaccard/rank metrics</td></tr>
+              <tr><td>Security implications</td><td>SHAP/IG evasion, PGD, mutable PGD, transfer defense</td></tr>
+              <tr><td>Reproducibility</td><td>Fixed seed, commands, code, figures, summary JSON</td></tr>
+            </tbody>
+          </table>
+          <div class="card dark fill">
+            <div>
+              <h3>Presentation logic</h3>
+              <p class="muted">The report does not stop at feature importance. It asks whether explanations are stable, and whether stable explanations create a security risk.</p>
+            </div>
+            <div class="callout gold"><p><strong>Short oral line:</strong> Project 5 is about interpretable IDS decisions and the reliability/security of those explanations.</p></div>
+          </div>
+        </div>
+      </div>
+      <footer><span>Baseline + 3+ variations + metrics + stability + security reasoning</span><span>2 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Explain data in relation to the IDS decision. The key idea is that global accuracy is not enough because R2L and U2R are rare and subtle.">
+    <aside class="rail"><div class="rail-title">Data</div><div class="num">03</div></aside>
+    <div class="main">
+      <header><div class="kicker">NSL-KDD</div><div class="context">Data understanding and preprocessing</div></header>
+      <div class="content" style="grid-template-rows:auto auto 1fr;">
+        <h2>Why This IDS Task Is Not Just A Simple Classification Problem</h2>
+        <div class="grid-3">
+          <div class="card"><div class="metric blue">125,973</div><div class="metric-label">KDDTrain+ records</div></div>
+          <div class="card"><div class="metric blue">22,544</div><div class="metric-label">KDDTest+ records</div></div>
+          <div class="card"><div class="metric blue">478</div><div class="metric-label">Final aligned features</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Preprocessing choices</h3>
+            <ul>
+              <li>Family mapping: normal, DoS, Probe, R2L, U2R.</li>
+              <li>One-hot encoding for protocol, service, flag.</li>
+              <li>MinMax scaling fitted on training only.</li>
+              <li>Byte logs, traffic ratios, service ratios, error gaps, login anomaly score.</li>
+            </ul>
+          </div>
+          <div class="callout red">
+            <p><strong>Analysis:</strong> R2L and U2R are rare and subtle. A model can look good globally while failing the most important low-frequency attacks, so the report emphasizes per-family recall.</p>
+          </div>
+        </div>
+      </div>
+      <footer><span>KDDTest+ includes distribution shift and novel attack subtypes</span><span>3 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Show experimental rigor. Each stage adds a reason: baseline, explainability, neural model, adversarial training, robust tree, final ensemble.">
+    <aside class="rail"><div class="rail-title">Pipeline</div><div class="num">04</div></aside>
+    <div class="main">
+      <header><div class="kicker">Experimental Design</div><div class="context">From baseline to final ensemble</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>A Structured Pipeline, Not One Isolated Model</h2>
+        <div class="grid-5">
+          <div class="step"><b>1. Baseline</b><p>Logistic Regression gives an interpretable reference.</p></div>
+          <div class="step"><b>2. Explain</b><p>RF + TreeSHAP and Torch MLP + IG expose decision logic.</p></div>
+          <div class="step"><b>3. Binary IDS</b><p>Attack-vs-normal models optimize operational thresholds.</p></div>
+          <div class="step"><b>4. Robustify</b><p>Multi-eps PGD fine-tuning and SHAP-guided adversarial augmentation.</p></div>
+          <div class="step"><b>5. Ensemble</b><p>Adv+ExtraTrees blends neural and tree behavior.</p></div>
+        </div>
+        <div class="callout blue"><p><strong>Why the ensemble works:</strong> PGD attacks exploit the differentiable Torch surrogate, but those adversarial examples transfer poorly to the tree-heavy final ensemble.</p></div>
+      </div>
+      <footer><span>Final weights: 0.15 adversarial Torch + 0.85 SHAP-Robust ExtraTrees</span><span>4 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Use this slide to justify the final model. Read only the selected row and the comparison with Security-OR.">
+    <aside class="rail"><div class="rail-title">Decision</div><div class="num">05</div></aside>
+    <div class="main">
+      <header><div class="kicker">Clean IDS Results</div><div class="context">Selecting the operational model</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>Which Model Should Be Used As The Final IDS?</h2>
+        <div class="grid-2 left">
+          <table>
+            <thead><tr><th>Model</th><th>F1</th><th>PR-AUC</th><th>Bal. Acc.</th></tr></thead>
+            <tbody>
+              <tr><td>Logistic Regression</td><td>0.8344</td><td>0.9388</td><td>0.8442</td></tr>
+              <tr><td>Torch MLP CUDA</td><td>0.8470</td><td>0.9077</td><td>0.8605</td></tr>
+              <tr><td>SHAP-Robust ExtraTrees</td><td>0.8912</td><td>0.9592</td><td>0.8941</td></tr>
+              <tr class="selected"><td>Adv+ExtraTrees Ensemble</td><td>0.9063</td><td>0.9626</td><td>0.9064</td></tr>
+              <tr><td>Security-OR</td><td>0.8796</td><td>0.9451</td><td>0.8839</td></tr>
+            </tbody>
+          </table>
+          <div class="card fill">
+            <div>
+              <h3>Interpretation</h3>
+              <p>The selected model is not simply the strictest detector. It is the best balance between clean binary detection, rare attack recall, explainability, and adversarial transfer robustness.</p>
+            </div>
+            <div class="callout gold"><p><strong>Why not Security-OR?</strong> It is stricter, but lower clean F1 makes it an optional high-security mode, not the default model.</p></div>
+          </div>
+        </div>
+      </div>
+      <footer><span>Final selected model: Adv+ExtraTrees Ensemble IDS</span><span>5 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="This is a simple but important slide. It shows the model is useful not only globally but on difficult families. Be honest: R2L is improved, not perfect.">
+    <aside class="rail"><div class="rail-title">Recall</div><div class="num">06</div></aside>
+    <div class="main">
+      <header><div class="kicker">Rare-Family IDS Behavior</div><div class="context">Why global F1 is not enough</div></header>
+      <div class="content" style="grid-template-rows:auto auto 1fr;">
+        <h2>Does The Final IDS Detect The Difficult Attack Families?</h2>
+        <div class="grid-4">
+          <div class="card"><div class="metric">0.9859</div><div class="metric-label">DoS recall</div></div>
+          <div class="card"><div class="metric">1.0000</div><div class="metric-label">Probe recall</div></div>
+          <div class="card"><div class="metric gold">0.6786</div><div class="metric-label">R2L recall</div></div>
+          <div class="card"><div class="metric gold">0.8060</div><div class="metric-label">U2R recall</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="callout"><p><strong>Positive result:</strong> R2L and U2R are much stronger than standard tree baselines, which had very low recall on these families.</p></div>
+          <div class="callout gold"><p><strong>Defendable limit:</strong> R2L remains difficult. The correct claim is improvement under a hard test split, not perfect rare-attack detection.</p></div>
+        </div>
+      </div>
+      <footer><span>Per-family recall directly supports IDS decision analysis</span><span>6 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Make the figure easy. Explain the bars and the security meaning. The top features are interpretable network behaviors.">
+    <aside class="rail"><div class="rail-title">Explain</div><div class="num">07</div></aside>
+    <div class="main">
+      <header><div class="kicker">Final Ensemble Explanation</div><div class="context">What the selected IDS uses</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>The Final IDS Decision Is Based On Meaningful Traffic Signals</h2>
+        <div class="grid-2 right">
+          <div class="card fill">
+            <div>
+              <h3>How to read the image</h3>
+              <p>The largest bars are the features with the strongest contribution to the ensemble's attack decision. These are not arbitrary IDs: they represent connection state, service consistency, login behavior, host concentration, and error patterns.</p>
+            </div>
+            <div class="callout"><p><strong>Oral sentence:</strong> the model is explainable because its top features correspond to understandable network behavior.</p></div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/adv_tree_ensemble_top10.png" alt="Final ensemble explanation">
+            <div class="caption">Final Adv+ExtraTrees ensemble: top feature contributions</div>
+          </div>
+        </div>
+      </div>
+      <footer><span>Final top features include flag_SF, same_srv_rate, dst_host_srv_count, logged_in, rerror_rate</span><span>7 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="This slide compares the explanation methods visually. Explain that TreeSHAP is for trees, IG is for neural models, and SmoothIG reduces gradient noise.">
+    <aside class="rail"><div class="rail-title">XAI</div><div class="num">08</div></aside>
+    <div class="main">
+      <header><div class="kicker">Complementary Explainability</div><div class="context">Different models need different explanations</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>Why We Use More Than One Explanation Method</h2>
+        <div class="grid-3">
+          <div class="image-card">
+            <img src="../../outputs_cuda/rf_shap_top10.png" alt="RF SHAP">
+            <div class="caption">TreeSHAP for Random Forest</div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/torch_binary_smoothig_top10.png" alt="SmoothIG">
+            <div class="caption">SmoothIG for Torch Binary MLP</div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/rf_vs_torch_explanations.png" alt="RF vs Torch explanation">
+            <div class="caption">RF SHAP vs Torch IG agreement</div>
+          </div>
+        </div>
+        <div class="callout blue"><p><strong>Analysis:</strong> agreement between methods supports trust, while disagreement shows that different model classes rely on different decision surfaces. This is why the final report does not depend on a single explanation method.</p></div>
+      </div>
+      <footer><span>TreeSHAP explains tree splits; IG/SmoothIG explain neural gradients</span><span>8 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Stability is an assignment requirement. Explain that stable explanations are more reliable for analysts, but can also be a map for attackers.">
+    <aside class="rail"><div class="rail-title">Stability</div><div class="num">09</div></aside>
+    <div class="main">
+      <header><div class="kicker">Explanation Reliability</div><div class="context">Stability analysis</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>Are The Explanations Reliable Across Samples And Resampling?</h2>
+        <div class="grid-2 left">
+          <table>
+            <thead><tr><th>Method</th><th>Local Jaccard</th><th>Bootstrap Jaccard</th></tr></thead>
+            <tbody>
+              <tr><td>RF SHAP</td><td>0.8802</td><td>0.5744</td></tr>
+              <tr><td>Torch IG</td><td>0.8811</td><td>0.9964</td></tr>
+              <tr><td>SmoothIG</td><td>0.8992</td><td>0.9564</td></tr>
+              <tr class="selected"><td>Adv+ExtraTrees</td><td>0.8453</td><td>0.8873</td></tr>
+            </tbody>
+          </table>
+          <div class="image-card">
+            <img src="../../outputs_cuda/ig_stability.png" alt="IG stability">
+            <div class="caption">Integrated Gradients stability distribution</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="callout"><p><strong>Analyst value:</strong> stable explanations are easier to trust and investigate.</p></div>
+          <div class="callout red"><p><strong>Security risk:</strong> stable feature importance can also give attackers consistent manipulation targets.</p></div>
+        </div>
+      </div>
+      <footer><span>Explainability is dual-use: it supports trust and can guide evasion</span><span>9 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Use this slide to show the adversarial implication of explainability. SHAP and IG help attackers against standalone models, but the final ensemble resists the TreeSHAP-guided attack.">
+    <aside class="rail"><div class="rail-title">Attack</div><div class="num">10</div></aside>
+    <div class="main">
+      <header><div class="kicker">Explanation-Guided Evasion</div><div class="context">Security implications of XAI</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>Can Explanations Be Used Against The IDS?</h2>
+        <div class="grid-3">
+          <div class="image-card">
+            <img src="../../outputs_cuda/rf_shap_evasion_local.png" alt="RF local SHAP evasion">
+            <div class="caption">RF local SHAP evasion: best 18.22%</div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/ig_evasion_heatmap.png" alt="IG evasion">
+            <div class="caption">Torch IG evasion: best 15.97%</div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/adv_tree_shap_evasion.png" alt="Final ensemble TreeSHAP evasion">
+            <div class="caption">Final ensemble TreeSHAP evasion: 0.00%</div>
+          </div>
+        </div>
+        <div class="callout red"><p><strong>Analysis:</strong> explanations are exploitable against standalone models, but the final ensemble changes the attack surface and blocks the tested TreeSHAP-guided evasion.</p></div>
+      </div>
+      <footer><span>Security implication required by doc.pdf: explanations can be dual-use</span><span>10 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="This slide explains PGD results. It shows why the standalone neural model is not enough. Full-feature PGD breaks it, so the final model needs the ensemble.">
+    <aside class="rail"><div class="rail-title">PGD</div><div class="num">11</div></aside>
+    <div class="main">
+      <header><div class="kicker">White-Box PGD Stress Test</div><div class="context">Why the neural model alone is insufficient</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>Direct PGD Still Pressures The Standalone Neural Detector</h2>
+        <div class="grid-2">
+          <div class="image-card">
+            <img src="../../outputs_cuda/torch_binary_pgd_evasion.png" alt="Original PGD">
+            <div class="caption">Original Torch Binary MLP: full-feature PGD reaches 100%</div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/torch_binary_adv_pgd_evasion.png" alt="Adversarial PGD">
+            <div class="caption">After multi-eps adversarial training: low-budget robustness improves</div>
+          </div>
+        </div>
+        <div class="callout gold"><p><strong>How to defend this result:</strong> adversarial fine-tuning helps, but high-epsilon direct white-box PGD remains strong. This is exactly why the final selected model is the ensemble, not the standalone neural detector.</p></div>
+      </div>
+      <footer><span>Do not overclaim: direct neural PGD vulnerability remains at high epsilon</span><span>11 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Mutable-feature PGD is important because full-feature PGD can be unrealistic. This slide shows that when categorical and binary fields are frozen, adversarial training helps especially at medium and high eps.">
+    <aside class="rail"><div class="rail-title">Realism</div><div class="num">12</div></aside>
+    <div class="main">
+      <header><div class="kicker">Mutable-Feature PGD</div><div class="context">A more realistic tabular threat model</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>What Happens When The Attacker Cannot Change Every Feature?</h2>
+        <div class="grid-2">
+          <div class="image-card">
+            <img src="../../outputs_cuda/torch_binary_constrained_pgd_evasion.png" alt="Mutable PGD before">
+            <div class="caption">Before adversarial training</div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/torch_binary_adv_constrained_pgd_evasion.png" alt="Mutable PGD after">
+            <div class="caption">After multi-eps adversarial training</div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="card"><div class="metric gold">32.03 pp</div><div class="metric-label">Reduction at eps 0.10</div></div>
+          <div class="card"><div class="metric gold">42.03 pp</div><div class="metric-label">Reduction at eps 0.15</div></div>
+          <div class="callout gold"><p><strong>Tradeoff:</strong> eps 0.03 slightly worsens, so the defense is beneficial mainly at medium/high perturbation budgets.</p></div>
+        </div>
+      </div>
+      <footer><span>Mutable PGD freezes categorical and binary fields</span><span>12 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="This is the strongest slide. Spend time here. The surrogate is attacked successfully, but the final ensemble blocks transfer. Use careful language: empirical robustness under the tested transfer-PGD model.">
+    <aside class="rail"><div class="rail-title">Defense</div><div class="num">13</div></aside>
+    <div class="main">
+      <header><div class="kicker">Main Defense Result</div><div class="context">Transfer-PGD against final model</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>The Final Ensemble Breaks PGD Transferability</h2>
+        <div class="grid-2 left">
+          <table>
+            <thead><tr><th>Eps</th><th>Surrogate evasion</th><th>Ensemble evasion</th><th>Reduction</th></tr></thead>
+            <tbody>
+              <tr><td>0.03</td><td>37.29%</td><td>0.50%</td><td>36.79 pp</td></tr>
+              <tr class="selected"><td>0.06</td><td>63.99%</td><td>0.00%</td><td>63.99 pp</td></tr>
+              <tr class="selected"><td>0.10</td><td>91.24%</td><td>0.00%</td><td>91.24 pp</td></tr>
+              <tr class="selected"><td>0.15</td><td>100.00%</td><td>0.00%</td><td>100.00 pp</td></tr>
+            </tbody>
+          </table>
+          <div class="image-card">
+            <img src="../../outputs_cuda/adv_tree_transfer_pgd_defense.png" alt="Transfer PGD defense">
+            <div class="caption">Transfer-PGD defense: surrogate vs Adv+ExtraTrees ensemble</div>
+          </div>
+        </div>
+        <div class="callout"><p><strong>Defendable claim:</strong> the final ensemble is robust under the tested transfer-PGD threat model. It is not a formal guarantee against every adaptive attack.</p></div>
+      </div>
+      <footer><span>Central result: transfer evasion is nearly eliminated</span><span>13 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Explain Security-OR briefly. It is not final because clean F1 is lower, but it is a useful stricter operating point.">
+    <aside class="rail"><div class="rail-title">Strict Mode</div><div class="num">14</div></aside>
+    <div class="main">
+      <header><div class="kicker">Optional Operating Point</div><div class="context">Security-OR</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>Security-OR: Stronger Defense, Lower Clean Balance</h2>
+        <div class="grid-2 right">
+          <div class="card fill">
+            <div>
+              <h3>How to position it</h3>
+              <p>Security-OR uses calibrated component margins and flags an event when either component is sufficiently confident. It reaches 0.00% transfer-PGD evasion at all tested eps values, but its clean F1 is lower than Adv+ExtraTrees.</p>
+            </div>
+            <div class="callout gold"><p><strong>Conclusion:</strong> mention Security-OR as an optional high-security mode, not as the selected final model.</p></div>
+          </div>
+          <div class="image-card">
+            <img src="../../outputs_cuda/security_or_transfer_pgd_defense.png" alt="Security OR defense">
+            <div class="caption">Security-OR transfer-PGD defense</div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="card"><div class="metric small">0.8796</div><div class="metric-label">Security-OR F1</div></div>
+          <div class="card"><div class="metric small">0.9451</div><div class="metric-label">Security-OR PR-AUC</div></div>
+          <div class="card"><div class="metric small">0.00%</div><div class="metric-label">Transfer evasion at all tested eps</div></div>
+        </div>
+      </div>
+      <footer><span>Default model remains Adv+ExtraTrees because it has stronger clean balance</span><span>14 / 15</span></footer>
+    </div>
+  </section>
+
+  <section class="slide" data-notes="Finish with a balanced conclusion and limitations. Avoid overclaiming. Say the result is strong and defensible, but bounded by dataset and threat-model limits.">
+    <aside class="rail"><div class="rail-title">Close</div><div class="num">15</div></aside>
+    <div class="main">
+      <header><div class="kicker">Conclusion And Defense Summary</div><div class="context">What to remember</div></header>
+      <div class="content" style="grid-template-rows:auto 1fr auto;">
+        <h2>The Final Story In One Slide</h2>
+        <div class="grid-3">
+          <div class="card fill"><div><div class="metric">0.9063</div><div class="metric-label">Best final clean F1</div></div><p>Selected model: Adv+ExtraTrees Ensemble IDS.</p></div>
+          <div class="card fill"><div><div class="metric">0.8453</div><div class="metric-label">Final ensemble local explanation stability</div></div><p>Explanations are stable enough to support analyst interpretation.</p></div>
+          <div class="card fill"><div><div class="metric">0.00%</div><div class="metric-label">Transfer-PGD evasion at eps >= 0.06</div></div><p>Under the tested transfer-PGD threat model.</p></div>
+        </div>
+        <div class="grid-2">
+          <div class="callout"><p><strong>Contribution:</strong> the project connects IDS performance, explainability, stability, and adversarial evaluation in one reproducible pipeline.</p></div>
+          <div class="callout red"><p><strong>Limit:</strong> NSL-KDD is old, feature-space attacks are imperfect, and robustness is empirical rather than certified.</p></div>
+        </div>
+      </div>
+      <footer><span>Final oral line: explainability is useful, but in cybersecurity it must be tested as an attack surface</span><span>15 / 15</span></footer>
+    </div>
+  </section>
+
+</main>
+
+<div class="notes" id="notes"></div>
+<div class="controls">
+  <button onclick="prevSlide()">Prev</button>
+  <button onclick="nextSlide()">Next</button>
+  <button onclick="toggleNotes()">Notes</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const notes = document.getElementById('notes');
+  let index = 0;
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((slide, n) => slide.classList.toggle('active', n === index));
+    notes.textContent = slides[index].dataset.notes || '';
+  }
+  function nextSlide() { show(index + 1); }
+  function prevSlide() { show(index - 1); }
+  function toggleNotes() { document.body.classList.toggle('show-notes'); notes.textContent = slides[index].dataset.notes || ''; }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowRight' || event.key === ' ') nextSlide();
+    if (event.key === 'ArrowLeft') prevSlide();
+    if (event.key.toLowerCase() === 'n') toggleNotes();
+  });
+  show(0);
+</script>
+</body>
+</html>

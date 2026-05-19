@@ -1,0 +1,323 @@
+PS D:\kalish\deep>  .\venv\Scripts\python.exe pipeline_cuda.py
+[CUDA] torch=2.6.0+cu124 cuda_available=True device=cuda
+[CUDA] gpu=NVIDIA GeForce RTX 3060 Laptop GPU
+[DATA] train=(125973, 42) test=(22544, 42)
+[PREP] features=478 X_train=(125973, 478) X_test=(22544, 478)
+[CUDA] Starting GPU-backed Torch MLP before CPU-only baseline models.
+[CUDA] To monitor in another PowerShell: nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv -l 1
+  epoch=01 val_macro_f1=0.3100
+  epoch=05 val_macro_f1=0.5637
+  epoch=10 val_macro_f1=0.6068
+  epoch=15 val_macro_f1=0.6446
+  epoch=20 val_macro_f1=0.6706
+  epoch=25 val_macro_f1=0.6968
+  epoch=30 val_macro_f1=0.7295
+  epoch=35 val_macro_f1=0.6732
+  epoch=40 val_macro_f1=0.7084
+[TORCH] best_epoch=32 val_macro_f1=0.7478 time=39.5s
+[TORCH] tuned_multipliers={'normal': np.float32(1.0), 'DoS': np.float32(1.1), 'Probe': np.float32(1.0), 'R2L': np.float32(1.0), 'U2R': np.float32(2.0)}
+[TRAIN] Torch Binary MLP CUDA variation
+  binary_epoch=01 val_binary_f1=0.9877 threshold=0.31
+  binary_epoch=05 val_binary_f1=0.9941 threshold=0.77
+  binary_epoch=10 val_binary_f1=0.9971 threshold=0.40
+  binary_epoch=15 val_binary_f1=0.9977 threshold=0.50
+  binary_epoch=20 val_binary_f1=0.9975 threshold=0.78
+  binary_epoch=25 val_binary_f1=0.9984 threshold=0.41
+  binary_epoch=30 val_binary_f1=0.9982 threshold=0.71
+  binary_epoch=35 val_binary_f1=0.9984 threshold=0.40
+  binary_epoch=40 val_binary_f1=0.9988 threshold=0.40
+  binary_epoch=45 val_binary_f1=0.9985 threshold=0.30
+  binary_epoch=50 val_binary_f1=0.9985 threshold=0.53
+[TORCH-BINARY] best_epoch=40 val_binary_f1=0.9988 threshold=0.40 time=63.1s
+[DEFENSE] Adversarially fine-tuning Torch Binary MLP with multi-eps PGD examples
+  adv_epoch=01 val_binary_f1=0.9849 val_evasion=100.00% threshold=0.80
+  adv_epoch=02 val_binary_f1=0.9622 val_evasion=100.00% threshold=0.80
+  adv_epoch=03 val_binary_f1=0.5560 val_evasion=100.00% threshold=0.80
+  adv_epoch=04 val_binary_f1=0.6269 val_evasion=97.85% threshold=0.80
+  adv_epoch=05 val_binary_f1=0.5927 val_evasion=95.90% threshold=0.80
+  adv_epoch=06 val_binary_f1=0.5714 val_evasion=45.31% threshold=0.80
+  adv_epoch=07 val_binary_f1=0.6818 val_evasion=43.36% threshold=0.80
+  adv_epoch=08 val_binary_f1=0.6406 val_evasion=42.38% threshold=0.80
+  adv_epoch=09 val_binary_f1=0.6419 val_evasion=41.80% threshold=0.80
+  adv_epoch=10 val_binary_f1=0.6803 val_evasion=42.58% threshold=0.80
+  adv_epoch=11 val_binary_f1=0.6469 val_evasion=43.95% threshold=0.80
+  adv_epoch=12 val_binary_f1=0.6562 val_evasion=41.41% threshold=0.80
+  adv_epoch=13 val_binary_f1=0.7140 val_evasion=42.38% threshold=0.80
+  adv_epoch=14 val_binary_f1=0.7527 val_evasion=41.60% threshold=0.80
+  adv_epoch=15 val_binary_f1=0.6516 val_evasion=41.80% threshold=0.80
+  adv_epoch=16 val_binary_f1=0.8537 val_evasion=41.80% threshold=0.80
+[DEFENSE] Torch adversarial fine-tune selected epoch=16 val_binary_f1=0.8537 threshold=0.80
+[TRAIN] Strong binary IDS CPU models
+  Binary LR val_f1=0.9797 threshold=0.31
+  Binary RF val_f1=0.9993 threshold=0.35
+  Binary ExtraTrees val_f1=0.9993 threshold=0.44
+[TRAIN] SHAP-augmented robust ExtraTrees IDS
+  Robust ExtraTrees val_f1=1.0000 val_evasion=0.00% threshold=0.12
+  Binary XGBoost val_f1=0.9993 threshold=0.49
+[TRAIN] Binary ensemble val_f1=1.0000 threshold=0.40 weights={'lr': 0.05, 'rf': 0.2, 'et': 0.25, 'xgb': 0.35, 'torch': 0.15}
+[TRAIN] Adv+ExtraTrees ensemble val_f1=1.0000 val_evasion=0.00% threshold=0.15 weights={'adv': 0.15, 'ret': 0.85}
+[TRAIN] Security-OR ensemble val_f1=1.0000 val_evasion=0.00% threshold=1.25 tree=binary_robust_extratrees
+[TRAIN] Logistic Regression baseline
+  LR params={'C': 0.7} val_macro_f1=0.6959 rare_recall=0.9349
+  LR params={'C': 1.5} val_macro_f1=0.7057 rare_recall=0.9349
+  selected LR={'C': 1.5} multipliers={'normal': np.float32(1.0), 'DoS': np.float32(1.0), 'Probe': np.float32(1.0), 'R2L': np.float32(1.0), 'U2R': np.float32(1.0)}
+[TRAIN] Random Forest variation
+  RF params={'n_estimators': 180, 'max_depth': 18, 'min_samples_leaf': 1} val_macro_f1=0.9165 rare_recall=0.8899
+  RF params={'n_estimators': 240, 'max_depth': 22, 'min_samples_leaf': 1} val_macro_f1=0.9444 rare_recall=0.8950
+  RF params={'n_estimators': 320, 'max_depth': 24, 'min_samples_leaf': 2} val_macro_f1=0.9469 rare_recall=0.8925
+  selected RF={'n_estimators': 320, 'max_depth': 24, 'min_samples_leaf': 2} multipliers={'normal': np.float32(1.0), 'DoS': np.float32(1.0), 'Probe': np.float32(1.0), 'R2L': np.float32(1.0), 'U2R': np.float32(1.0)}
+[EVAL] Logistic Regression          binary_F1=0.8344 family_F1=0.5775 PR-AUC=0.9388 binary_bal_acc=0.8442
+              precision    recall  f1-score   support
+
+      normal       0.75      0.91      0.83      9711
+         DoS       0.97      0.86      0.91      7458
+       Probe       0.70      0.82      0.76      2421
+         R2L       0.72      0.17      0.27      2887
+         U2R       0.07      0.64      0.12        67
+
+    accuracy                           0.79     22544
+   macro avg       0.64      0.68      0.58     22544
+weighted avg       0.81      0.79      0.77     22544
+
+[EVAL] Random Forest                binary_F1=0.7633 family_F1=0.5539 PR-AUC=0.9695 binary_bal_acc=0.7899
+              precision    recall  f1-score   support
+
+      normal       0.65      0.97      0.78      9711
+         DoS       0.96      0.76      0.85      7458
+       Probe       0.83      0.67      0.74      2421
+         R2L       0.97      0.06      0.12      2887
+         U2R       0.54      0.19      0.29        67
+
+    accuracy                           0.75     22544
+   macro avg       0.79      0.53      0.55     22544
+weighted avg       0.81      0.75      0.71     22544
+
+[EVAL] Torch MLP CUDA               binary_F1=0.8470 family_F1=0.5949 PR-AUC=0.9077 binary_bal_acc=0.8605
+              precision    recall  f1-score   support
+
+      normal       0.75      0.96      0.84      9711
+         DoS       0.96      0.84      0.90      7458
+       Probe       0.79      0.80      0.79      2421
+         R2L       0.49      0.16      0.24      2887
+         U2R       0.12      0.57      0.20        67
+
+    accuracy                           0.80     22544
+   macro avg       0.62      0.66      0.59     22544
+weighted avg       0.79      0.80      0.78     22544
+
+[EVAL] Torch Binary MLP CUDA        binary_F1=0.8021 PR-AUC=0.9095 binary_bal_acc=0.8197 threshold=0.40
+[EVAL] PGD-Adversarial Torch Binary MLP binary_F1=0.7592 PR-AUC=0.9224 binary_bal_acc=0.7553 threshold=0.80
+[EVAL] Binary LR IDS                binary_F1=0.7801 PR-AUC=0.8939 binary_bal_acc=0.7970 threshold=0.31
+[EVAL] Binary RF IDS                binary_F1=0.8027 PR-AUC=0.9712 binary_bal_acc=0.8231 threshold=0.35
+[EVAL] Binary ExtraTrees IDS        binary_F1=0.7969 PR-AUC=0.9612 binary_bal_acc=0.8184 threshold=0.44
+[EVAL] SHAP-Robust ExtraTrees IDS   binary_F1=0.8912 PR-AUC=0.9592 binary_bal_acc=0.8941 threshold=0.12
+[EVAL] Binary XGBoost IDS           binary_F1=0.7844 PR-AUC=0.9695 binary_bal_acc=0.8077 threshold=0.49
+[EVAL] Tuned Binary Ensemble IDS    binary_F1=0.8047 PR-AUC=0.9687 binary_bal_acc=0.8252 threshold=0.40
+[EVAL] Adv+ExtraTrees Ensemble IDS  binary_F1=0.9063 PR-AUC=0.9626 binary_bal_acc=0.9064 threshold=0.15
+[EVAL] Security-OR Ensemble IDS     binary_F1=0.8796 PR-AUC=0.9451 binary_bal_acc=0.8839 threshold=1.25
+[XAI] TreeSHAP for Random Forest
+[XAI] Integrated gradients for Torch MLP
+[XAI] RF/torch explanation Spearman=0.677 p=1.814e-65
+[XAI] Top RF SHAP features:
+   1. dst_host_srv_count                   0.02382
+   2. traffic_total_log                    0.02091
+   3. count                                0.01863
+   4. src_bytes_log                        0.01840
+   5. logged_in                            0.01645
+   6. dst_bytes_log                        0.01598
+   7. byte_ratio                           0.01586
+   8. dst_host_same_src_port_rate          0.01490
+   9. srv_count                            0.01488
+  10. dst_host_count                       0.01089
+[XAI] Top Torch IG features:
+   1. host_serror_gap                      1.16740
+   2. host_rerror_gap                      0.71423
+   3. rerror_gap                           0.56876
+   4. dst_host_count                       0.55478
+   5. dst_host_srv_count                   0.53057
+   6. same_diff_srv_gap                    0.48611
+   7. dst_host_same_srv_rate               0.46137
+   8. dst_host_rerror_rate                 0.40648
+   9. protocol_type_tcp                    0.38477
+  10. serror_gap                           0.38041
+[XAI] Smooth Integrated Gradients for Torch Binary MLP
+[XAI] Top Torch Binary SmoothIG features:
+   1. host_serror_gap                      5.39208
+   2. host_rerror_gap                      4.93317
+   3. protocol_type_tcp                    3.42596
+   4. dst_host_rerror_rate                 2.49974
+   5. traffic_total_log                    2.04942
+   6. rerror_gap                           2.00859
+   7. same_srv_rate                        1.97773
+   8. same_diff_srv_gap                    1.50251
+   9. rerror_rate                          1.39802
+  10. src_bytes_log                        1.28001
+[STABILITY] Torch Binary SmoothIG top-10: local_jaccard=0.899 +/- 0.127 local_rank=0.626 bootstrap_jaccard=0.956
+[XAI] Combined Adv+ExtraTrees ensemble explanation
+   1. flag_SF                              0.048416
+   2. same_srv_rate                        0.042902
+   3. dst_host_srv_count                   0.039916
+   4. logged_in                            0.039379
+   5. dst_host_same_srv_rate               0.038632
+   6. rerror_rate                          0.037965
+   7. dst_host_rerror_rate                 0.036109
+   8. service_private                      0.035889
+   9. same_diff_srv_gap                    0.034803
+  10. dst_host_srv_serror_rate             0.032607
+[STABILITY] Adv+ExtraTrees Ensemble top-10: local_jaccard=0.845 +/- 0.162 local_rank=0.686 bootstrap_jaccard=0.887
+[STABILITY] RF SHAP top-10: local_jaccard=0.880 +/- 0.157 local_rank=0.996 bootstrap_jaccard=0.574
+[STABILITY] Torch IG top-10: local_jaccard=0.881 +/- 0.179 local_rank=0.983 bootstrap_jaccard=0.996
+[ATTACK] RF SHAP-guided evasion, report-compatible
+  global top-05 eps=0.05: evasion=2.02%
+  global top-05 eps=0.10: evasion=11.74%
+  global top-05 eps=0.20: evasion=6.07%
+  global top-10 eps=0.05: evasion=3.24%
+  global top-10 eps=0.10: evasion=14.98%
+  global top-10 eps=0.20: evasion=8.10%
+  global top-15 eps=0.05: evasion=2.83%
+  global top-15 eps=0.10: evasion=14.98%
+  global top-15 eps=0.20: evasion=6.48%
+  local  top-05 eps=0.05: evasion=4.05%
+  local  top-05 eps=0.10: evasion=4.86%
+  local  top-05 eps=0.20: evasion=6.48%
+  local  top-10 eps=0.05: evasion=7.29%
+  local  top-10 eps=0.10: evasion=11.74%
+  local  top-10 eps=0.20: evasion=8.91%
+  local  top-15 eps=0.05: evasion=8.50%
+  local  top-15 eps=0.10: evasion=18.22%
+  local  top-15 eps=0.20: evasion=10.12%
+[ATTACK] Integrated-gradient guided feature evasion against Torch MLP
+  top-05 eps=0.03: evasion=1.92%
+  top-05 eps=0.06: evasion=7.67%
+  top-05 eps=0.10: evasion=8.31%
+  top-10 eps=0.03: evasion=3.83%
+  top-10 eps=0.06: evasion=9.27%
+  top-10 eps=0.10: evasion=12.14%
+  top-15 eps=0.03: evasion=7.03%
+  top-15 eps=0.06: evasion=11.50%
+  top-15 eps=0.10: evasion=15.97%
+[ATTACK] TreeSHAP-guided evasion against Adv+ExtraTrees ensemble
+  top-10 eps=0.06: tree=0.08% ensemble=0.00%
+  top-10 eps=0.10: tree=0.08% ensemble=0.00%
+  top-10 eps=0.15: tree=0.16% ensemble=0.00%
+  top-20 eps=0.06: tree=0.00% ensemble=0.00%
+  top-20 eps=0.10: tree=0.00% ensemble=0.00%
+  top-20 eps=0.15: tree=0.00% ensemble=0.00%
+  top-40 eps=0.06: tree=0.00% ensemble=0.00%
+  top-40 eps=0.10: tree=0.00% ensemble=0.00%
+  top-40 eps=0.15: tree=0.00% ensemble=0.00%
+[ATTACK] White-box PGD evasion against Torch Binary MLP
+  PGD all-features eps=0.03: evasion=100.00%
+  PGD all-features eps=0.06: evasion=100.00%
+  PGD all-features eps=0.10: evasion=100.00%
+  PGD all-features eps=0.15: evasion=100.00%
+[ATTACK] SmoothIG-constrained PGD evasion against Torch Binary MLP
+  SmoothIG top-10 eps=0.06: evasion=3.44%
+  SmoothIG top-10 eps=0.10: evasion=9.17%
+  SmoothIG top-10 eps=0.15: evasion=17.77%
+  SmoothIG top-20 eps=0.06: evasion=12.03%
+  SmoothIG top-20 eps=0.10: evasion=25.50%
+  SmoothIG top-20 eps=0.15: evasion=40.69%
+  SmoothIG top-40 eps=0.06: evasion=36.68%
+  SmoothIG top-40 eps=0.10: evasion=62.18%
+  SmoothIG top-40 eps=0.15: evasion=92.84%
+[ATTACK] White-box PGD evasion against Torch Binary MLP
+  PGD all-features eps=0.03: evasion=33.34%
+  PGD all-features eps=0.06: evasion=61.72%
+  PGD all-features eps=0.10: evasion=90.69%
+  PGD all-features eps=0.15: evasion=100.00%
+[ATTACK] Realistic mutable-feature PGD against Torch Binary MLP CUDA
+  constrained PGD eps=0.03: evasion=11.70%
+  constrained PGD eps=0.06: evasion=30.76%
+  constrained PGD eps=0.10: evasion=71.21%
+  constrained PGD eps=0.15: evasion=100.00%
+[ATTACK] Realistic mutable-feature PGD against Multi-Eps PGD-Adversarial Torch Binary MLP
+  constrained PGD eps=0.03: evasion=14.05%
+  constrained PGD eps=0.06: evasion=26.38%
+  constrained PGD eps=0.10: evasion=39.18%
+  constrained PGD eps=0.15: evasion=57.97%
+[DEFENSE] Adv+ExtraTrees transfer-PGD defense
+  clean_attack_detection=91.63% threshold=0.15 weights={'adv': 0.15, 'ret': 0.85}
+  eps=0.03: surrogate_torch=37.29% ensemble=0.50% reduction=36.79%
+  eps=0.06: surrogate_torch=63.99% ensemble=0.00% reduction=63.99%
+  eps=0.10: surrogate_torch=91.24% ensemble=0.00% reduction=91.24%
+  eps=0.15: surrogate_torch=100.00% ensemble=0.00% reduction=100.00%
+[DEFENSE] Security-OR transfer-PGD defense
+  clean_attack_detection=86.26% threshold=1.25 tree=binary_robust_extratrees
+  eps=0.03: surrogate_torch=33.39% security_or=0.00% reduction=33.39%
+  eps=0.06: surrogate_torch=61.74% security_or=0.00% reduction=61.74%
+  eps=0.10: surrogate_torch=90.69% security_or=0.00% reduction=90.69%
+  eps=0.15: surrogate_torch=100.00% security_or=0.00% reduction=100.00%
+[DEFENSE] Feature-randomization defense against local RF SHAP attack
+  without_defense=11.74% with_defense=11.74% reduction=0.00%
+[EVAL] Adversarially Trained Binary RF binary_F1=0.8661 PR-AUC=0.9713 binary_bal_acc=0.8746 threshold=0.23
+[DEFENSE] Adversarial training defense against binary RF SHAP attack
+  without_defense=4.59% with_defense=0.00% reduction=4.59%
+[OUT] wrote outputs_cuda\summary.json
+
+========================================================================
+COPY THIS BLOCK FOR REPORT UPDATE
+========================================================================
+Device: cuda | Torch: 2.6.0+cu124
+Logistic Regression: binary_precision=0.8382, binary_recall=0.8442, binary_f1=0.8344, pr_auc=0.9388, binary_balanced_accuracy=0.8442, family_f1=0.5775
+  family_recall: DoS=0.8575, Probe=0.8245, R2L=0.1701, U2R=0.6418
+Random Forest: binary_precision=0.8095, binary_recall=0.7899, binary_f1=0.7633, pr_auc=0.9695, binary_balanced_accuracy=0.7899, family_f1=0.5539
+  family_recall: DoS=0.7604, Probe=0.6650, R2L=0.0623, U2R=0.1940
+Torch MLP CUDA: binary_precision=0.8568, binary_recall=0.8605, binary_f1=0.8470, pr_auc=0.9077, binary_balanced_accuracy=0.8605, family_f1=0.5949
+  family_recall: DoS=0.8371, Probe=0.7972, R2L=0.1635, U2R=0.5672
+Torch Binary MLP CUDA: binary_precision=0.8223, binary_recall=0.8197, binary_f1=0.8021, pr_auc=0.9095, binary_balanced_accuracy=0.8197, threshold=0.40
+  family_recall: DoS=0.8675, Probe=0.8678, R2L=0.1032, U2R=0.3582
+PGD-Adversarial Torch Binary MLP: binary_precision=0.7716, binary_recall=0.7553, binary_f1=0.7592, pr_auc=0.9224, binary_balanced_accuracy=0.7553, threshold=0.80
+  family_recall: DoS=0.9473, Probe=0.9719, R2L=0.5417, U2R=0.7761
+Binary LR IDS: binary_precision=0.7990, binary_recall=0.7970, binary_f1=0.7801, pr_auc=0.8939, binary_balanced_accuracy=0.7970, threshold=0.31
+  family_recall: DoS=0.8374, Probe=0.8620, R2L=0.1084, U2R=0.3134
+Binary RF IDS: binary_precision=0.8305, binary_recall=0.8231, binary_f1=0.8027, pr_auc=0.9712, binary_balanced_accuracy=0.8231, threshold=0.35
+  family_recall: DoS=0.8541, Probe=0.8815, R2L=0.0599, U2R=0.1940
+Binary ExtraTrees IDS: binary_precision=0.8278, binary_recall=0.8184, binary_f1=0.7969, pr_auc=0.9612, binary_balanced_accuracy=0.8184, threshold=0.44
+  family_recall: DoS=0.8391, Probe=0.8918, R2L=0.0367, U2R=0.2388
+SHAP-Robust ExtraTrees IDS: binary_precision=0.8895, binary_recall=0.8941, binary_f1=0.8912, pr_auc=0.9592, binary_balanced_accuracy=0.8941, threshold=0.12
+  family_recall: DoS=0.9610, Probe=1.0000, R2L=0.5882, U2R=0.7761
+Binary XGBoost IDS: binary_precision=0.8209, binary_recall=0.8077, binary_f1=0.7844, pr_auc=0.9695, binary_balanced_accuracy=0.8077, threshold=0.49
+  family_recall: DoS=0.8489, Probe=0.7142, R2L=0.0623, U2R=0.2239
+Tuned Binary Ensemble IDS: binary_precision=0.8328, binary_recall=0.8252, binary_f1=0.8047, pr_auc=0.9687, binary_balanced_accuracy=0.8252, threshold=0.40
+  family_recall: DoS=0.8642, Probe=0.8228, R2L=0.0862, U2R=0.2836
+Adv+ExtraTrees Ensemble IDS: binary_precision=0.9062, binary_recall=0.9064, binary_f1=0.9063, pr_auc=0.9626, binary_balanced_accuracy=0.9064, threshold=0.15
+  family_recall: DoS=0.9859, Probe=1.0000, R2L=0.6786, U2R=0.8060
+Security-OR Ensemble IDS: binary_precision=0.8780, binary_recall=0.8839, binary_f1=0.8796, pr_auc=0.9451, binary_balanced_accuracy=0.8839, threshold=1.25
+  family_recall: DoS=0.9523, Probe=0.9996, R2L=0.5151, U2R=0.7463
+RF/Torch explanation Spearman: 0.6774
+RF SHAP stability: local_jaccard=0.8802 +/- 0.1575, local_rank=0.9960, bootstrap_jaccard=0.5744, bootstrap_rank=0.9950
+Torch IG stability: local_jaccard=0.8811 +/- 0.1788, local_rank=0.9827, bootstrap_jaccard=0.9964, bootstrap_rank=0.9406
+Torch Binary SmoothIG stability: local_jaccard=0.8992 +/- 0.1272, local_rank=0.6263, bootstrap_jaccard=0.9564, bootstrap_rank=0.9940
+Adv+ExtraTrees explanation stability: local_jaccard=0.8453 +/- 0.1621, local_rank=0.6861, bootstrap_jaccard=0.8873, bootstrap_rank=0.9899
+Best RF SHAP evasion: local_top15_eps0.1=18.22%
+Best Torch IG evasion: ig_top15_eps0.1=15.97%
+Best Adv+ExtraTrees TreeSHAP evasion: binary_robust_extratrees_top10_eps0.06=0.00%
+Best Torch Binary PGD/SmoothIG evasion: pgd_all_eps0.03=100.00%
+Best PGD evasion after Torch adversarial fine-tuning: pgd_all_eps0.15=100.00%
+Best mutable-feature PGD evasion: constrained_pgd_eps0.15=100.00%
+Best mutable-feature PGD evasion after adversarial fine-tuning: constrained_pgd_eps0.15=57.97%
+PGD adversarial fine-tuning defense reductions:
+  pgd_all_eps0.03: before=100.00%, after=33.34%, reduction=66.66%
+  pgd_all_eps0.06: before=100.00%, after=61.72%, reduction=38.28%
+  pgd_all_eps0.1: before=100.00%, after=90.69%, reduction=9.31%
+  pgd_all_eps0.15: before=100.00%, after=100.00%, reduction=0.00%
+Mutable-feature PGD adversarial fine-tuning defense reductions:
+  constrained_pgd_eps0.03: before=11.70%, after=14.05%, reduction=-2.35%
+  constrained_pgd_eps0.06: before=30.76%, after=26.38%, reduction=4.38%
+  constrained_pgd_eps0.1: before=71.21%, after=39.18%, reduction=32.03%
+  constrained_pgd_eps0.15: before=100.00%, after=57.97%, reduction=42.03%
+Adv+ExtraTrees transfer-PGD defense reductions:
+  transfer_pgd_eps0.03: surrogate=37.29%, ensemble=0.50%, reduction=36.79%
+  transfer_pgd_eps0.06: surrogate=63.99%, ensemble=0.00%, reduction=63.99%
+  transfer_pgd_eps0.1: surrogate=91.24%, ensemble=0.00%, reduction=91.24%
+  transfer_pgd_eps0.15: surrogate=100.00%, ensemble=0.00%, reduction=100.00%
+Security-OR transfer-PGD defense reductions:
+  security_or_transfer_pgd_eps0.03: surrogate=33.39%, security_or=0.00%, reduction=33.39%
+  security_or_transfer_pgd_eps0.06: surrogate=61.74%, security_or=0.00%, reduction=61.74%
+  security_or_transfer_pgd_eps0.1: surrogate=90.69%, security_or=0.00%, reduction=90.69%
+  security_or_transfer_pgd_eps0.15: surrogate=100.00%, security_or=0.00%, reduction=100.00%
+RF SHAP adversarial-training defense: attack=binary_local_top10_eps0.1, without=4.59%, with=0.00%, reduction=4.59%
+========================================================================
+[DONE] CUDA pipeline complete
+PS D:\kalish\deep>
